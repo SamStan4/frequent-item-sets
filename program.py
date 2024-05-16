@@ -52,8 +52,6 @@ class triangle_matrix:
         for i in range (0, len(item_list), 1):
             self.code_to_num[item_list[i]] = i
             self.num_to_code[i] = item_list[i]
-        # for i in range (len(self.pair_grid)):
-        #     self.pair_grid[i] = 0
 
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
     #     method name     --> get_internal_index()
@@ -76,6 +74,15 @@ class triangle_matrix:
         return i * (2 * self.num_items - i + 1) // 2 + j - i
 
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
+    #     method name     --> __getitem__()
+    #     method purpose  --> returns item at given 2d index
+    #     member of       --> triangle_matrix
+    #     preconditions   --> none
+    #     postconditions  --> none
+    #     date created    --> 5/15/2024
+    #     last modified   --> 5/16/2024
+    #     programmer      --> sam stanley
+    #     sources         --> none
 
     def __getitem__(self, index : list) -> int:
         i, j = index
@@ -87,6 +94,16 @@ class triangle_matrix:
         else:
             return self.pair_grid[real_index]
         
+    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
+    #     method name     --> __setitem__()
+    #     method purpose  --> sets item at given 2d index
+    #     member of       --> triangle_matrix
+    #     preconditions   --> none
+    #     postconditions  --> none
+    #     date created    --> 5/15/2024
+    #     last modified   --> 5/16/2024
+    #     programmer      --> sam stanley
+    #     sources         --> none
     
     def __setitem__(self, index : list, val : int) -> None:
         i, j = index
@@ -98,6 +115,17 @@ class triangle_matrix:
         else:
             self.pair_grid[real_index] = val
 
+    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
+    #     method name     --> get_num_items()
+    #     method purpose  --> returns the total number of items with value >= min
+    #     member of       --> triangle_matrix
+    #     preconditions   --> none
+    #     postconditions  --> none
+    #     date created    --> 5/15/2024
+    #     last modified   --> 5/16/2024
+    #     programmer      --> sam stanley
+    #     sources         --> none
+
     def get_num_items(self, min = 0) -> None:
         total = 0
         for i in range(len(self.pair_grid)):
@@ -105,13 +133,12 @@ class triangle_matrix:
                 total += 1
         return total
 
-
-
-
+    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 
 #################################################################################################################################################################################################################
 
 class analysis_wrapper:
+
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
     #     method name     --> __init__()
     #     method purpose  --> constructor
@@ -144,7 +171,7 @@ class analysis_wrapper:
 
     def run_analysis(self) -> None:
         # self.print_frequent_items()
-        # self.print_frequent_pairs()
+        self.print_frequent_pairs()
         # print(len(self.frequent_pairs))
         # print(len(self.frequent_items))
         print()
@@ -176,8 +203,8 @@ class analysis_wrapper:
                 self.frequent_items.append(key)
     
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
-    #     method name     --> populate_frequent_items()           this function is slow AF
-    #     method purpose  --> populates a list of items that appear a minimum number of times
+    #     method name     --> populate_frequent_pairs()           this function is slow AF
+    #     method purpose  --> populates a list of pairs that appear a minimum number of times
     #     member of       --> analysis_wrapper
     #     preconditions   --> program constructor was called, file exists
     #     postconditions  --> none
@@ -200,7 +227,7 @@ class analysis_wrapper:
         for i in range(len(self.frequent_items)):
             for j in range(i + 1, len(self.frequent_items)):
                 if (pair_matrix[self.frequent_items[i], self.frequent_items[j]] > self.threshold):
-                    self.frequent_pairs.append([self.frequent_items[i], self.frequent_items[j]])
+                    self.frequent_pairs.append(set([self.frequent_items[i], self.frequent_items[j]]))
         
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
     #     method name     --> print_frequent_items()
@@ -218,12 +245,21 @@ class analysis_wrapper:
             print(item)
 
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
-    
+    #     method name     --> print_frequent_pairs()
+    #     method purpose  --> displays to the terminal, the list of frequent pairs
+    #     member of       --> analysis_wrapper
+    #     preconditions   --> frequent_pairs is populated
+    #     postconditions  --> none
+    #     date created    --> 5/15/2024
+    #     last modified   --> 5/16/2024
+    #     programmer      --> sam stanley
+    #     sources         --> none
+
     def print_frequent_pairs(self) -> None:
         for pair in self.frequent_pairs:
             print(pair)
 
-
+    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 
 
 #################################################################################################################################################################################################################
