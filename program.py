@@ -155,6 +155,9 @@ class analysis_wrapper:
         self.frequent_items = []
         self.frequent_pairs = []
         self.frequent_tripples = []
+        self.frequent_items_dict = {}
+        self.frequent_pairs_dict = {}
+        self.frequent_tripples_dict = {}
         self.populate_frequent_items()
         self.populate_frequent_pairs()
 
@@ -201,10 +204,11 @@ class analysis_wrapper:
         for key in item_freq:
             if item_freq[key] >= self.threshold:
                 self.frequent_items.append(key)
+                self.frequent_items_dict[key] = item_freq[key]
     
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
     #     method name     --> populate_frequent_pairs()           this function is slow AF
-    #     method purpose  --> populates a list of pairs that appear a minimum number of times
+    #     method purpose  --> populates a list of pairs that appear a minimum number of times using the A-priori algorithim
     #     member of       --> analysis_wrapper
     #     preconditions   --> program constructor was called, file exists
     #     postconditions  --> none
@@ -228,6 +232,28 @@ class analysis_wrapper:
             for j in range(i + 1, len(self.frequent_items)):
                 if (pair_matrix[self.frequent_items[i], self.frequent_items[j]] > self.threshold):
                     self.frequent_pairs.append(set([self.frequent_items[i], self.frequent_items[j]]))
+                    self.frequent_pairs_dict[frozenset(set([self.frequent_items[i], self.frequent_items[j]]))] = pair_matrix[self.frequent_items[i], self.frequent_items[j]]
+
+    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
+    #     method name     --> populate_frequent_tripples()           this function is also slow AF
+    #     method purpose  --> populates a list of tripples that appear a minimum number of times using the A-priori algorithim
+    #     member of       --> analysis_wrapper
+    #     preconditions   --> program constructor was called, file exists
+    #     postconditions  --> none
+    #     date created    --> 5/16/2024
+    #     last modified   --> 5/16/2024
+    #     programmer      --> sam stanley
+    #     sources         --> none
+
+    def populate_frequent_tripples(self) -> None:
+        print()
+
+    
+
+
+
+
+
         
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
     #     method name     --> print_frequent_items()
@@ -242,7 +268,7 @@ class analysis_wrapper:
 
     def print_frequent_items(self) -> None:
         for item in self.frequent_items:
-            print(item)
+            print("ITEM[" + str(item) + "] --> FREQ[" + str(self.frequent_items_dict[item]) + "]")
 
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
     #     method name     --> print_frequent_pairs()
@@ -257,7 +283,7 @@ class analysis_wrapper:
 
     def print_frequent_pairs(self) -> None:
         for pair in self.frequent_pairs:
-            print(pair)
+            print("PAIR[" + str(pair) + "] --> FREQ[" + str(self.frequent_pairs_dict[frozenset(pair)]) + "]")
 
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 
