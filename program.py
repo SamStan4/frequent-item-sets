@@ -29,12 +29,12 @@ given_threshold = 100
 #
 #################################################################################################################################################################################################################
 
-class triangle_matrix:
+class pair_matrix:
 
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
     #     method name     --> __init__()
     #     method purpose  --> constructor
-    #     member of       --> triangle_matrix
+    #     member of       --> pair_matrix
     #     preconditions   --> none
     #     postconditions  --> none
     #     date created    --> 5/15/2024
@@ -56,7 +56,7 @@ class triangle_matrix:
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
     #     method name     --> get_internal_index()
     #     method purpose  --> returns the actual index of an element in the array, 2d -> 1d
-    #     member of       --> triangle_matrix
+    #     member of       --> pair_matrix
     #     preconditions   --> none
     #     postconditions  --> none
     #     date created    --> 5/15/2024
@@ -76,7 +76,7 @@ class triangle_matrix:
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
     #     method name     --> __getitem__()
     #     method purpose  --> returns item at given 2d index
-    #     member of       --> triangle_matrix
+    #     member of       --> pair_matrix
     #     preconditions   --> none
     #     postconditions  --> none
     #     date created    --> 5/15/2024
@@ -97,7 +97,7 @@ class triangle_matrix:
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
     #     method name     --> __setitem__()
     #     method purpose  --> sets item at given 2d index
-    #     member of       --> triangle_matrix
+    #     member of       --> pair_matrix
     #     preconditions   --> none
     #     postconditions  --> none
     #     date created    --> 5/15/2024
@@ -118,7 +118,7 @@ class triangle_matrix:
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
     #     method name     --> get_num_items()
     #     method purpose  --> returns the total number of items with value >= min
-    #     member of       --> triangle_matrix
+    #     member of       --> pair_matrix
     #     preconditions   --> none
     #     postconditions  --> none
     #     date created    --> 5/15/2024
@@ -132,6 +132,82 @@ class triangle_matrix:
             if self.pair_grid[i] >= min:
                 total += 1
         return total
+
+    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
+
+#################################################################################################################################################################################################################
+
+class triple_matrix:
+
+    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
+    #     method name     --> __init__()
+    #     method purpose  --> constructor
+    #     member of       --> triple_matrix
+    #     preconditions   --> none
+    #     postconditions  --> none
+    #     date created    --> 5/16/2024
+    #     last modified   --> 5/16/2024
+    #     programmer      --> sam stanley
+    #     sources         --> none
+
+    def __init__(self) -> None:
+        self.tripple_table = {}
+
+    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
+    #     method name     --> increment()
+    #     method purpose  --> increments an index based off of a given key
+    #     member of       --> triple_matrix
+    #     preconditions   --> none
+    #     postconditions  --> none
+    #     date created    --> 5/16/2024
+    #     last modified   --> 5/16/2024
+    #     programmer      --> sam stanley
+    #     sources         --> none
+
+    def increment(self, key : set, add = 1) -> None:
+        frozen_key = frozenset(key)
+        if len(key) != 3:
+            return
+        if frozen_key not in self.tripple_table:
+            self.tripple_table[frozen_key] = 0
+        self.tripple_table[frozen_key] += add
+        
+        
+    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
+    #     method name     --> get_frequent_elements()
+    #     method purpose  --> gets items in the tripple table that are above a certian amount
+    #     member of       --> triple_matrix
+    #     preconditions   --> none
+    #     postconditions  --> none
+    #     date created    --> 5/16/2024
+    #     last modified   --> 5/16/2024
+    #     programmer      --> sam stanley
+    #     sources         --> none
+
+    def get_frequent_elements(self, min : int) -> list:
+        freq_tripple_list = []
+        for key in self.tripple_table:
+            if self.tripple_table[key] >= min:
+                freq_tripple_list.append(set(key))
+        return freq_tripple_list
+    
+    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
+    #     method name     --> get_frequent_elements_table()
+    #     method purpose  --> gets items in the tripple table that are above a certian amount and returns a dict that contains the item + its support
+    #     member of       --> triple_matrix
+    #     preconditions   --> none
+    #     postconditions  --> none
+    #     date created    --> 5/16/2024
+    #     last modified   --> 5/16/2024
+    #     programmer      --> sam stanley
+    #     sources         --> none
+    
+    def get_frequent_elements_table(self, min : int) -> dict:
+        freq_table_dict = {}
+        for key in self.tripple_table:
+            if self.tripple_table[key] >= min:
+                freq_table_dict[key] = self.tripple_table[key]
+        return freq_table_dict
 
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 
@@ -154,12 +230,14 @@ class analysis_wrapper:
         self.threshold = min
         self.frequent_items = []
         self.frequent_pairs = []
-        self.frequent_tripples = []
+        self.frequent_triples = []
         self.frequent_items_dict = {}
         self.frequent_pairs_dict = {}
-        self.frequent_tripples_dict = {}
+        self.frequent_triples_dict = {}
         self.populate_frequent_items()
         self.populate_frequent_pairs()
+        self.populate_frequent_triples()
+
 
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
     #     method name     --> run_analysis()
@@ -174,10 +252,32 @@ class analysis_wrapper:
 
     def run_analysis(self) -> None:
         # self.print_frequent_items()
-        self.print_frequent_pairs()
+        # self.print_frequent_pairs()
+        self.print_frequent_triples()
         # print(len(self.frequent_pairs))
         # print(len(self.frequent_items))
+        
         print()
+
+    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
+    #     method name     --> get_items_in_freq_pairs()
+    #     method purpose  --> this function will return a list of items that appear in a frequent pair
+    #     member of       --> analysis_wrapper
+    #     preconditions   --> none
+    #     postconditions  --> none
+    #     date created    --> 5/16/2024
+    #     last modified   --> 5/16/2024
+    #     programmer      --> sam stanley
+    #     sources         --> none
+
+    def get_items_in_freq_pairs(self) -> list:
+        pair_item_set = set()
+        for pair in self.frequent_pairs:
+            pair_list = list(pair)
+            for item in pair_list:
+                pair_item_set.add(item)
+        return list(pair_item_set)
+
 
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
     #     method name     --> populate_frequent_items()
@@ -218,25 +318,26 @@ class analysis_wrapper:
     #     sources         --> none
 
     def populate_frequent_pairs(self) -> None:
-        pair_matrix = triangle_matrix(self.frequent_items)
+        pair_grid = pair_matrix(self.frequent_items)
         frequent_item_set = set(self.frequent_items)
         input_stream = open(data_file_name, "r")
         for line in input_stream:
             basket = line.replace('\n', '').split(" ")
             for i in range(len(basket)):
-                for j in range(i + 1, len(basket)):
-                    if (basket[i] in frequent_item_set) and (basket[j] in frequent_item_set):
-                        pair_matrix[basket[i], basket[j]] += 1
+                if basket[i] in frequent_item_set:
+                    for j in range(i + 1, len(basket)):
+                        if basket[j] in frequent_item_set:
+                            pair_grid[basket[i], basket[j]] += 1
         input_stream.close()
         for i in range(len(self.frequent_items)):
             for j in range(i + 1, len(self.frequent_items)):
-                if (pair_matrix[self.frequent_items[i], self.frequent_items[j]] > self.threshold):
+                if (pair_grid[self.frequent_items[i], self.frequent_items[j]] > self.threshold):
                     self.frequent_pairs.append(set([self.frequent_items[i], self.frequent_items[j]]))
-                    self.frequent_pairs_dict[frozenset(set([self.frequent_items[i], self.frequent_items[j]]))] = pair_matrix[self.frequent_items[i], self.frequent_items[j]]
+                    self.frequent_pairs_dict[frozenset(set([self.frequent_items[i], self.frequent_items[j]]))] = pair_grid[self.frequent_items[i], self.frequent_items[j]]
 
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
-    #     method name     --> populate_frequent_tripples()           this function is also slow AF
-    #     method purpose  --> populates a list of tripples that appear a minimum number of times using the A-priori algorithim
+    #     method name     --> populate_frequent_triples()           this function is also SLOW AF
+    #     method purpose  --> populates a list of triples that appear a minimum number of times using the A-priori algorithim
     #     member of       --> analysis_wrapper
     #     preconditions   --> program constructor was called, file exists
     #     postconditions  --> none
@@ -245,16 +346,23 @@ class analysis_wrapper:
     #     programmer      --> sam stanley
     #     sources         --> none
 
-    def populate_frequent_tripples(self) -> None:
-        print()
-
-    
-
-
-
-
-
-        
+    def populate_frequent_triples(self) -> None:
+        triple_grid = triple_matrix()
+        frequent_pair_items = set(self.get_items_in_freq_pairs())
+        input_stream = open(data_file_name, "r")
+        for line in input_stream:
+            basket = line.replace('\n', '').split(" ")
+            for i in range(len(basket)):
+                if basket[i] in frequent_pair_items:
+                    for j in range(i + 1, len(basket)):
+                        if basket[j] in frequent_pair_items:
+                            for k in range(j + 1, len(basket)):
+                                if basket[k] in frequent_pair_items:
+                                    triple_grid.increment(set([basket[i], basket[j], basket[k]]))
+        input_stream.close()
+        self.frequent_triples = triple_grid.get_frequent_elements(given_threshold)
+        self.frequent_triples_dict = triple_grid.get_frequent_elements_table(given_threshold)
+                
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
     #     method name     --> print_frequent_items()
     #     method purpose  --> displays to the terminal, the list of frequent items
@@ -286,6 +394,10 @@ class analysis_wrapper:
             print("PAIR[" + str(pair) + "] --> FREQ[" + str(self.frequent_pairs_dict[frozenset(pair)]) + "]")
 
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
+
+    def print_frequent_triples(self) -> None:
+        for triple in self.frequent_triples:
+            print("TRIPLE[" + str(triple) + "] --> FREQ[" + str(self.frequent_triples_dict[frozenset(triple)]) + "]")
 
 
 #################################################################################################################################################################################################################
