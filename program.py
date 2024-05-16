@@ -1,5 +1,7 @@
 #!/usr/bin/python3
 
+import heapq as hq
+
 data_file_name = "browsing-data.txt"
 given_threshold = 100
 
@@ -28,6 +30,62 @@ given_threshold = 100
 #         \______/ |________/|__/  |__/ \______/  \______/ |________/ \______/ 
 #
 #################################################################################################################################################################################################################
+
+
+class pair_confidence:
+
+    def __init__(self, l : str, r : str, c : float) -> None:
+        self.left = l
+        self.right = r
+        self.con = c
+
+    def __lt__(self, other_element) -> bool:
+        if (self.con != other_element.con):
+            if (self.con > 0):
+                return self.con < other_element.con
+            else:
+                return self.con > other_element.con
+        elif (self.left != other_element.left):
+            return self.left < other_element.left
+        else:
+            return self.right < other_element.right
+        
+    def __gt__(self, other_element) -> bool:
+        if (self.con != other_element.con):
+            if (self.con > 0):
+                return self.con > other_element.con
+            else:
+                return self.con < other_element.con
+        elif (self.left != other_element.left):
+            return self.left > other_element.left
+        else:
+            return self.right > other_element.right
+        
+class max_pair_heap:
+
+    def __init__(self):
+        self.heap = []
+
+    def push(self, item : pair_confidence) -> None:
+        item.con *= -1
+        hq.heappush(self.heap, item)
+    
+    def pop(self) -> pair_confidence:
+        if self.heap:
+            item = hq.heappop(self.heap)
+            item.con *= -1
+            return item
+        return None
+    
+    def peek(self) -> pair_confidence:
+        if self.heap:
+            item = self.heap[0]
+            item.con *= -1
+            return item
+        return None
+    
+    def __len__(self):
+        return len(self.heap)
 
 class pair_matrix:
 
@@ -253,9 +311,10 @@ class analysis_wrapper:
     def run_analysis(self) -> None:
         # self.print_frequent_items()
         # self.print_frequent_pairs()
-        self.print_frequent_triples()
+        # self.print_frequent_triples()
         # print(len(self.frequent_pairs))
         # print(len(self.frequent_items))
+        self.get_top_five_conf_pairs()
         
         print()
 
@@ -362,7 +421,26 @@ class analysis_wrapper:
         input_stream.close()
         self.frequent_triples = triple_grid.get_frequent_elements(given_threshold)
         self.frequent_triples_dict = triple_grid.get_frequent_elements_table(given_threshold)
-                
+
+    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
+    #     method name     --> get_top_five_conf_pairs()
+    #     method purpose  --> this function returns the top 5 confident { i } => j
+    #     member of       --> analysis_wrapper
+    #     preconditions   --> frequent_pairs is populated
+    #     postconditions  --> none
+    #     date created    --> 5/16/2024
+    #     last modified   --> 5/16/2024
+    #     programmer      --> sam stanley
+    #     sources         --> none
+
+    def get_top_five_conf_pairs(self) -> list:
+        for key in self.frequent_pairs_dict:
+            key_list = list(key)
+
+    # STOP HERE
+            
+            
+
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
     #     method name     --> print_frequent_items()
     #     method purpose  --> displays to the terminal, the list of frequent items
@@ -394,11 +472,21 @@ class analysis_wrapper:
             print("PAIR[" + str(pair) + "] --> FREQ[" + str(self.frequent_pairs_dict[frozenset(pair)]) + "]")
 
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
+    #     method name     --> print_frequent_triples()
+    #     method purpose  --> displays to the terminal, the list of frequent triples
+    #     member of       --> analysis_wrapper
+    #     preconditions   --> frequent_triples is populated
+    #     postconditions  --> none
+    #     date created    --> 5/16/2024
+    #     last modified   --> 5/16/2024
+    #     programmer      --> sam stanley
+    #     sources         --> none
 
     def print_frequent_triples(self) -> None:
         for triple in self.frequent_triples:
             print("TRIPLE[" + str(triple) + "] --> FREQ[" + str(self.frequent_triples_dict[frozenset(triple)]) + "]")
 
+    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 
 #################################################################################################################################################################################################################
 #
