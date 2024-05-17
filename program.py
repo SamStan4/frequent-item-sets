@@ -71,8 +71,8 @@ class rule_two:
     def __init__(self, left1 : str, left2 : str, right : str, con : float) -> None:
         # note: { i1, i2 } => j with confidence c
         lhs = sorted([left1, left2])
-        self.i1 = lhs[1]
-        self.i2 = lhs[0]
+        self.i1 = lhs[0]
+        self.i2 = lhs[1]
         self.j = right
         self.c = con
 
