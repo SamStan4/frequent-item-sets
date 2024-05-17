@@ -1,8 +1,9 @@
 #!/usr/bin/python3
 
-import heapq as hq
+import bisect
 
 data_file_name = "browsing-data.txt"
+output_file_name = "./output.txt"
 given_threshold = 100
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
@@ -31,62 +32,99 @@ given_threshold = 100
 #
 #################################################################################################################################################################################################################
 
+class rule_one:
 
-class pair_confidence:
+    def __init__(self, left : str, right : str, con : float) -> None:
+        # note: { i } => j with confidence c
+        self.i = left
+        self.j = right
+        self.c = con
 
-    def __init__(self, l : str, r : str, c : float) -> None:
-        self.left = l
-        self.right = r
-        self.con = c
-
-    def __lt__(self, other_element) -> bool:
-        if (self.con != other_element.con):
-            if (self.con > 0):
-                return self.con < other_element.con
-            else:
-                return self.con > other_element.con
-        elif (self.left != other_element.left):
-            return self.left < other_element.left
+    def __lt__(self, item) -> bool:
+        if not isinstance(item, rule_one):
+            return None
+        elif (self.c != item.c):
+            return self.c < item.c
+        elif (self.i != item.i):
+            return self.i < item.i
         else:
-            return self.right < other_element.right
-        
-    def __gt__(self, other_element) -> bool:
-        if (self.con != other_element.con):
-            if (self.con > 0):
-                return self.con > other_element.con
-            else:
-                return self.con < other_element.con
-        elif (self.left != other_element.left):
-            return self.left > other_element.left
+            return False
+
+    def __gt__(self, item) -> bool:
+        if not isinstance(item, rule_one):
+            return None
+        elif (self.c != item.c):
+            return self.c > item.c
+        elif (self.i != item.i):
+            return self.i > item.i
         else:
-            return self.right > other_element.right
+            return False
         
-class max_pair_heap:
-
-    def __init__(self):
-        self.heap = []
-
-    def push(self, item : pair_confidence) -> None:
-        item.con *= -1
-        hq.heappush(self.heap, item)
+    def __str__(self) -> str:
+        string = "{} {} {:.4f}".format(self.i, self.j, self.c)
+        return string
     
-    def pop(self) -> pair_confidence:
-        if self.heap:
-            item = hq.heappop(self.heap)
-            item.con *= -1
-            return item
-        return None
+#################################################################################################################################################################################################################
     
-    def peek(self) -> pair_confidence:
-        if self.heap:
-            item = self.heap[0]
-            item.con *= -1
-            return item
-        return None
-    
-    def __len__(self):
-        return len(self.heap)
+class rule_two:
 
+    def __init__(self, left1 : str, left2 : str, right : str, con : float) -> None:
+        # note: { i1, i2 } => j with confidence c
+        lhs = sorted([left1, left2])
+        self.i1 = lhs[1]
+        self.i2 = lhs[0]
+        self.j = right
+        self.c = con
+
+    def __lt__(self, item) -> bool:
+        if not isinstance(item, rule_two):
+            return None
+        if (self.c != item.c):
+            return self.c < item.c
+        elif (self.i1 != item.i1):
+            return self.i1 > item.i1
+        elif (self.i2 != item.i2):
+            return self.i2 > item.i2
+        else:
+            return False
+    
+    def __gt__(self, item) -> bool:
+        if not isinstance(item, rule_two):
+            return None
+        if (self.c != item.c):
+            return self.c > item.c
+        elif (self.i1 != item.i1):
+            return self.i1 < item.i1
+        elif (self.i2 != item.i2):
+            return self.i2 < item.i2
+        else:
+            return False
+    
+    def __str__(self) -> str:
+        string = "{} {} {} {:.4f}".format(self.i1, self.i2, self.j, self.c)
+        return string
+
+
+#################################################################################################################################################################################################################
+    
+class rule_top_five:
+
+    def __init__(self) -> None:
+        self.top_list = []
+    
+    def insert_value(self, item : rule_one) -> None:
+        if len(self.top_list) < 5:
+            bisect.insort(self.top_list, item)
+        else:
+            if (item > self.top_list[0]):
+                del self.top_list[0]
+                bisect.insort(self.top_list, item)
+
+    def get_top_five(self) -> list:
+        return self.top_list[::-1]
+     
+#################################################################################################################################################################################################################
+    
 class pair_matrix:
 
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
@@ -301,7 +339,7 @@ class analysis_wrapper:
     #     method name     --> run_analysis()
     #     method purpose  --> runs the entire program
     #     member of       --> analysis_wrapper
-    #     preconditions   --> none
+    #     preconditions   --> constructor executed
     #     postconditions  --> none
     #     date created    --> 5/15/2024
     #     last modified   --> 5/15/2024
@@ -309,14 +347,9 @@ class analysis_wrapper:
     #     sources         --> none
 
     def run_analysis(self) -> None:
-        # self.print_frequent_items()
-        # self.print_frequent_pairs()
-        # self.print_frequent_triples()
-        # print(len(self.frequent_pairs))
-        # print(len(self.frequent_items))
-        self.get_top_five_conf_pairs()
-        
-        print()
+        top_five_rule_one = self.get_top_five_conf_pairs()
+        top_five_rule_two = self.get_top_five_conf_tripples()
+        self.print_output(top_five_rule_one, top_five_rule_two)
 
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
     #     method name     --> get_items_in_freq_pairs()
@@ -434,11 +467,22 @@ class analysis_wrapper:
     #     sources         --> none
 
     def get_top_five_conf_pairs(self) -> list:
+        top_five_list = rule_top_five()
         for key in self.frequent_pairs_dict:
-            key_list = list(key)
-
-    # STOP HERE
+            pair = list(key)
+            top_five_list.insert_value(rule_one(pair[0], pair[1], self.frequent_pairs_dict[key] / self.frequent_items_dict[pair[0]]))
+            top_five_list.insert_value(rule_one(pair[1], pair[0], self.frequent_pairs_dict[key] / self.frequent_items_dict[pair[1]]))
+        return top_five_list.get_top_five()
             
+
+    def get_top_five_conf_tripples(self) -> list:
+        top_five_list = rule_top_five()
+        for key in self.frequent_triples_dict:
+            triple = list(key)
+            top_five_list.insert_value(rule_two(triple[0], triple[1], triple[2], self.frequent_triples_dict[key] / self.frequent_pairs_dict[frozenset(set([triple[0], triple[1]]))]))        
+            top_five_list.insert_value(rule_two(triple[1], triple[2], triple[0], self.frequent_triples_dict[key] / self.frequent_pairs_dict[frozenset(set([triple[1], triple[2]]))]))        
+            top_five_list.insert_value(rule_two(triple[0], triple[2], triple[1], self.frequent_triples_dict[key] / self.frequent_pairs_dict[frozenset(set([triple[0], triple[2]]))]))
+        return top_five_list.get_top_five()
             
 
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
@@ -487,6 +531,17 @@ class analysis_wrapper:
             print("TRIPLE[" + str(triple) + "] --> FREQ[" + str(self.frequent_triples_dict[frozenset(triple)]) + "]")
 
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
+
+    def print_output(self, rule_one_top : list, rule_two_top : list) -> None:
+        output_stream = open(output_file_name, "w")
+        output_stream.write("OUTPUT A\n")
+        for rule in rule_one_top:
+            output_stream.write(str(rule) + "\n")
+        output_stream.write("OUTPUT B\n")
+        for rule in rule_two_top:
+            output_stream.write(str(rule) + "\n")
+        output_stream.close()
+
 
 #################################################################################################################################################################################################################
 #
