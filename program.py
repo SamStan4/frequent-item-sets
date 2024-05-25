@@ -414,7 +414,7 @@ class analysis_wrapper:
         frequent_item_set = set(self.frequent_items)
         input_stream = open(data_file_name, "r")
         for line in input_stream:
-            basket = line.replace('\n', '').split(" ")
+            basket = line.replace('\n', '').split()
             for i in range(len(basket)):
                 if basket[i] in frequent_item_set:
                     for j in range(i + 1, len(basket)):
@@ -443,7 +443,7 @@ class analysis_wrapper:
         frequent_pair_items = set(self.get_items_in_freq_pairs())
         input_stream = open(data_file_name, "r")
         for line in input_stream:
-            basket = line.replace('\n', '').split(" ")
+            basket = line.replace('\n', '').split()
             for i in range(len(basket)):
                 if basket[i] in frequent_pair_items:
                     for j in range(i + 1, len(basket)):
