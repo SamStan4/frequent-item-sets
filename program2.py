@@ -1,5 +1,3 @@
-import bisect
-
 data_file_name = "browsing-data.txt"
 output_file_name = "./output.txt"
 given_threshold = 100
@@ -18,7 +16,7 @@ class top_five:
             self.top_five_arr.sort()
 
     def get_top_five_array(self) -> list:
-        return self.top_five_arr
+        return self.top_five_arr[::-1]
     
 class rule_one:
 
@@ -30,7 +28,7 @@ class rule_one:
     def __lt__(self, other_item) -> bool:
         if not isinstance(other_item, rule_one):
             return None
-        if self.confidence != other_item.confidence:
+        elif self.confidence != other_item.confidence:
             return self.confidence < other_item.confidence
         else:
             return self.left_value > self.right_value
@@ -38,7 +36,7 @@ class rule_one:
     def __gt__(self, other_item) -> bool:
         if not isinstance(other_item, rule_one):
             return None
-        if self.confidence != other_item.confidence:
+        elif self.confidence != other_item.confidence:
             return self.confidence > other_item.confidence
         else:
             return self.left_value < other_item.left_value
@@ -50,6 +48,47 @@ class rule_one:
         
     def __str__(self) -> str:
         return "{} {} {:.4f}".format(self.left_value, self.right_value, self.confidence)
+
+class rule_two:
+
+    def __init__(self, left_one : str, left_two : str, right : str, con : float) -> None:
+        # if (left_two > left_one):
+        #     left_one, left_two = left_two, left_one
+        # self.left_item_one = left_one
+        # self.left_item_two = left_two
+        pair = sorted([left_one, left_two])
+        self.left_item_one = pair[0]
+        self.left_item_two = pair[1]
+        self.right_item = right
+        self.confidence = con
+    
+    def __lt__(self, other_item) -> bool:
+        if not isinstance(other_item, rule_two):
+            return None
+        if self.confidence != other_item.confidence:
+            return self.confidence < other_item.confidence
+        elif self.left_item_one != other_item.left_item_two:
+            return self.left_item_one > other_item.left_item_one
+        else:
+            return self.left_item_two > other_item.left_item_two
+    
+    def __gt__(self, other_item) -> bool:
+        if not isinstance(other_item, rule_two):
+            return None
+        elif self.confidence != other_item.confidence:
+            return self.confidence > other_item.confidence
+        elif self.left_item_one != other_item.left_item_one:
+            return self.left_item_one < other_item.left_item_one
+        else:
+            return self.left_item_two < other_item.left_item_two
+    
+    def __eq__(self, other_item) -> bool:
+        if not isinstance(other_item, rule_two):
+            return None
+        return (self.confidence == other_item.confidence) and (self.left_item_one == other_item.left_item_one) and (self.left_item_two == other_item.left_item_two)
+    
+    def __str__(self) -> str:
+        return "{} {} {} {:.4f}".format(self.left_item_one, self.left_item_two, self.right_item, self.confidence)
 
 def get_frequent_item_set() -> dict:
     frequency_dict = {}
@@ -126,22 +165,34 @@ def get_top_five_rule_one(frequent_items : dict, frequent_pairs : dict) -> list:
         rule_one_top_five.insert_item(rule_one(pair[0], pair[1], frequent_pairs[key] / frequent_items[pair[0]]))
         rule_one_top_five.insert_item(rule_one(pair[1], pair[0], frequent_pairs[key] / frequent_items[pair[1]]))
     return rule_one_top_five.get_top_five_array()
-        
-frequent_items = get_frequent_item_set()
 
-pair_candidates = get_pair_candidates(frequent_items)
+def get_top_five_rule_two(frequent_pairs : dict, frequent_triples : dict) -> list:
+    rule_two_top_five = top_five()
+    for key in frequent_triples:
+        triple = list(key)
+        rule_two_top_five.insert_item(rule_two(triple[0], triple[1], triple[2], (frequent_triples[key] / frequent_pairs[frozenset([triple[0], triple[1]])])))
+        rule_two_top_five.insert_item(rule_two(triple[2], triple[0], triple[1], (frequent_triples[key] / frequent_pairs[frozenset([triple[2], triple[0]])])))
+        rule_two_top_five.insert_item(rule_two(triple[1], triple[2], triple[0], (frequent_triples[key] / frequent_pairs[frozenset([triple[1], triple[2]])])))
+    return rule_two_top_five.get_top_five_array()
 
-frequent_pairs = get_frequent_item_pair_set(pair_candidates)
+def print_rules_to_output_file(rule_one_top_five : list, rule_two_top_five : list) -> None:
+    output_stream = open(output_file_name, "w")
+    output_stream.write("OUTPUT A\n")
+    for item in rule_one_top_five:
+        output_stream.write(str(item) + "\n")
+    output_stream.write("OUTPUT B\n")
+    for item in rule_two_top_five:
+        output_stream.write(str(item) + "\n")
+    output_stream.close()
 
-triple_candidates = get_triple_candidates(frequent_pairs)
+def run_analysis() -> None:
+    frequent_items = get_frequent_item_set()
+    pair_candidates = get_pair_candidates(frequent_items)
+    frequent_pairs = get_frequent_item_pair_set(pair_candidates)
+    triple_candidates = get_triple_candidates(frequent_pairs)
+    frequent_triples = get_frequent_item_triple_set(triple_candidates)
+    rule_one_top_five = get_top_five_rule_one(frequent_items, frequent_pairs)
+    rule_two_top_five = get_top_five_rule_two(frequent_pairs, frequent_triples)
+    print_rules_to_output_file(rule_one_top_five, rule_two_top_five)
 
-frequent_triples = get_frequent_item_triple_set(triple_candidates)
-
-rule_one_top_five = get_top_five_rule_one(frequent_items, frequent_pairs)
-
-print(len(frequent_items))
-print(len(frequent_pairs))
-print(len(frequent_triples))
-
-for place in rule_one_top_five:
-    print(str(place))
+run_analysis()

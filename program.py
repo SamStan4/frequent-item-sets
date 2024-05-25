@@ -73,6 +73,10 @@ class rule_two:
         lhs = sorted([left1, left2])
         self.i1 = lhs[0]
         self.i2 = lhs[1]
+        # if left2 < left1:
+        #     left1, left2 = left2, left1
+        # self.i1 = left1
+        # self.i2 = left2
         self.j = right
         self.c = con
 
